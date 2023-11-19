@@ -43,4 +43,9 @@ If you have python installed, use  `pip install openpyxl pandas`  before running
 
 
 ### Capabilities (Development Log) 
-`2023-11-19`: // TODO: put day's progress here. 
+`2023-11-19`: Must be able to sort data from `MED-PC` which converts from delimited `.txt` to `.xlxs`. 
+- all initial data (Subject, Experiment, Start Date, etc) will be discarded. 
+- 'Box' indicator will not be discarded. In the event there are multiple boxes, their data will be sorted by ascending box number. 
+- 'L' and 'R' data indicate left vs right lever presses.  
+  
+Initial prototype: Discard uneccessary data, identify box number and sort the data following the 'box' cell entry. 
