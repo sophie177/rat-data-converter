@@ -36,7 +36,7 @@ If you have python installed, use  `pip install openpyxl pandas`  before running
 <!-- warning that this only works for windows/linux -->
 <!-- todo: add more detail / pictures. -->
 
-1. Convert your text file from MED-PC to `.xlxs` format using the 'delimited' option. 
+1. Convert your text file using MED-PC to `.xlxs` format using the 'delimited' option. 
 2. Download RatSorty.py and ensure it is saved to your machine as a `.py` file. Save the file to your desktop. (Note: these instructions assume it's not in a folder.) 
 3. In the Windows Command Prompt (or linux terminal), write `cd desktop`. 
 4. Hit enter, then type `python RatSort.py`. 
@@ -52,3 +52,5 @@ If you have python installed, use  `pip install openpyxl pandas`  before running
 - 'L' and 'R' data indicate left vs right lever presses. Lever press data will be preserved and sorted into arrays with running totals and presses per minute. 
   
 Initial prototype: Discard uneccessary data, identify box number and sort lever press data into 3-by-n arrays. The first array column will be the raw data, the second column is the running total, and the third is the running total divided by 60.  
+
+Current limitations: only expecting one box. 
