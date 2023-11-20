@@ -10,7 +10,6 @@ rat data converter for the Neuro Lab at WSU (commissioned by Damien Lybrand)
 import openpyxl
 import pandas as pd
 
-# initial practice sorting with panda, initial structure of sorting program 
 
 def sort_excel_data(input_file, output_file):
     # Load the Excel file
@@ -19,15 +18,20 @@ def sort_excel_data(input_file, output_file):
     # Assume the first sheet in the workbook
     sheet = workbook.active
 
-    found_box = False 
+    found_box = False
+    found_right_lever = False
+    found_left_lever = False
     box_num = 0 # box numbering starts at one, so setting this to zero serves as an error flag. 
 
-    # Extract all values from the sheet
-    data = []
-    for row in sheet.iter_rows(values_only=True):
-        data.extend(row)
-
-    # Iterate through each cell in the original sheet
+    ''' discard all data before the box number is encountered. 
+    Then discard all data between box and first lever press delimiter.
+    Keep all data attached to lever press delimiters.  '''
+    
+    # Create a new workbook and sheet
+    new_workbook = openpyxl.Workbook()
+    new_sheet = new_workbook.active
+    
+    # Iterate through each cell in the original sheet: First idenfity 'box' delimiter
     for row in sheet.iter_rows(values_only=True):
         for cell_value in row:
             # If 'box' is found, set the flag to True
@@ -38,21 +42,47 @@ def sort_excel_data(input_file, output_file):
             # If 'box' has been found, append the value to the new sheet
             if found_box:
                 new_sheet.append([cell_value])
+            else: 
+                print(" Box number not found. Unable to parse file.")
 
-    # Save the new workbook to the output file
-    new_workbook.save(output_file)
 
-    # Create a DataFrame and sort the data
-    df = pd.DataFrame(data, columns=['Data'])
-    df_sorted = df.sort_values(by='Data')
+    # Now discard info between box and lever 
+    # Left (active) lever must be present first in this logic 
+    for row in sheet.iter_rows(values_only=True):
+        for cell_value in row:
+            if cell_value is not None and 'L:' in str(cell_value):
+                found_left_lever = True
 
-    # Create a new workbook and sheet
-    new_workbook = openpyxl.Workbook()
-    new_sheet = new_workbook.active
+            # If left lever has been found, append the value to the new sheet
+            if found_left_lever:
+                new_sheet.append([cell_value])
+                # append everything until next delimiter is reached.  
+                while cell_value is not None: # zeroes should not be in input file. 
+                    new_sheet.append([cell_value])
+                    if cell_value == 0:
+                        print(" unexpected zero encountered. Terminating Parsing.")
+            else:
+                print(" Left Lever press delimiter [ L: ] not found! Unable to parse file. ")
+                
+                
+    # Right (inactive) lever next 
+    for row in sheet.iter_rows(values_only=True):
+        for cell_value in row:
+            if cell_value is not None and 'R:' in str(cell_value):
+                found_left_lever = True
 
-    # Write the sorted data to the new sheet in a single column
-    for value in df_sorted['Data']:
-        new_sheet.append([value])
+            # If right lever has been found, append the value to the new sheet
+            if found_right_lever:
+                new_sheet.append([cell_value])
+                # append rest of data, or until zero is encountered
+                while cell_value is not None: # zeroes should not be in input file. 
+                    new_sheet.append([cell_value])
+                    if cell_value == 0:
+                        print(" unexpected zero encountered. Terminating Parsing.")
+
+            else:
+                print(" Right Lever press delimiter [ R: ] not found! Unable to parse file. ")
+
 
     # Save the new workbook to the output file
     new_workbook.save(output_file)
@@ -62,11 +92,12 @@ if __name__ == "__main__":
     print(" Hello, Welcome to RatSort! ")
     print(" RatSort will require an input file path and return the path of the updated file.")
     
-    input_file_path = input('paste or type input file path here: ')
-
+    input_file_path = input("paste or type input file path here: ")
     
-    #input_file_path = "input_data.xlsx"  # Change this to your input file
-    output_file_path = "sorted_data.xlsx"  # Change this to your desired output file
+    #if 
+    
+    #input_file_path = "input_data.xlsx"  
+    output_file_path = "sorted_data.xlsx"  
 
     # Call the function to sort the data
     sort_excel_data(input_file_path, output_file_path)
