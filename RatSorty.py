@@ -39,16 +39,18 @@ def sort_excel_data(input_file, output_file):
             if 'Box:' in str(cell_value):
                 found_box = True
                 box_num += 1  # if box is found, increment box num.
+                break
 
             # If 'box' has been found, append the value to the new sheet
             if found_box:
                 new_sheet.append([cell_value])
-            else:
+    if not found_box:
                 print(" Box number not found. Unable to parse file.")
 
     # Iterate through each cell in the sheet
     for row in sheet.iter_rows(values_only=True):
-        for cell_value in row:
+        row_iter = iter(row)
+        for cell_value in row_iter:
             if cell_value is not None:
                 # Check for left lever
                 if 'L:' in str(cell_value):
@@ -59,7 +61,7 @@ def sort_excel_data(input_file, output_file):
                         if ':' not in str(cell_value):
                             new_sheet.append([cell_value])
                         # Update cell_value for the next iteration
-                        cell_value = next(row, None)
+                        cell_value = next(row_iter, None)
                     break  # Exit the loop after finding 'R:'
 
                 # Check for right lever
@@ -71,9 +73,11 @@ def sort_excel_data(input_file, output_file):
 
     # Print messages outside the loop based on the results
     if not found_left_lever:
-        print("Left Lever press delimiter [ L: ] not found! Unable to parse file.")
+        print(
+            "Left Lever press delimiter [ L: ] not found! Unable to parse file.")
     if not found_right_lever:
-        print("Right Lever press delimiter [ R: ] not found! Unable to parse file.")
+        print(
+            "Right Lever press delimiter [ R: ] not found! Unable to parse file.")
 
     # Save the new workbook to the output file
     new_workbook.save(output_file)
@@ -95,3 +99,4 @@ if __name__ == "__main__":
     sort_excel_data(input_file_path, output_file_path)
 
     print(f"Data has been sorted and saved to {output_file_path}")
+    print("Check the folder of this program for your sorted Data. ")

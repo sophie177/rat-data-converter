@@ -1,6 +1,6 @@
 ## README: Rat Data Converter 
 
-Voluntary exercise: raw data to csv string converter for Dr. Brown's Neuroscience lab at WSU. Comissioned by Damien Lybrand. <3
+Voluntary exercise: raw data to csv string converter for Dr. Brown's Neuroscience lab at WSU. Comissioned by Damien Lybrand.
 
 
 ---
@@ -31,16 +31,16 @@ Development Notes / Resources used -->
 ### Usage Instructions 
 
 This project is dependent on the openpyxl and panda libraries. 
-If you have python installed, use  `pip install openpyxl pandas`  before running this program. 
+If you have python installed, use  `pip install openpyxl pandas`  before running this program. If you don't have python installed, you can install it or wait for the next update (likely Tuesday, Nov 21 2023) 
 
 <!-- warning that this only works for windows/linux -->
 <!-- todo: add more detail / pictures. -->
 
 1. Convert your text file using MED-PC to `.xlxs` format using the 'delimited' option. 
-2. Download RatSorty.py and ensure it is saved to your machine as a `.py` file. Save the file to your desktop. (Note: these instructions assume it's not in a folder.) 
-3. In the Windows Command Prompt (or linux terminal), write `cd desktop`. 
+2. Download RatSorty.py and ensure it is saved to your machine as a `.py` file. Save the file to your desktop. 
+3. In the Windows Command Prompt (or linux terminal), write `cd desktop`. If you saved RatSorty to a folder, use `cd <folder name>`. 
 4. Hit enter, then type `python RatSort.py`. 
-5. Follow the prompts given to your terminal to ensure input and output file names will be correct. 
+5. Follow the prompts given to your terminal to ensure input and output file names will be correct. The sorted file will appear in the same location that you saved RatSorty to, but a path will also be given in the terminal. 
    
 
 
