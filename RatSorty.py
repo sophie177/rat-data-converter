@@ -36,7 +36,7 @@ def sort_excel_data(input_file, output_file):
     for row in sheet.iter_rows(values_only=True):
         for cell_value in row:
             # If 'box' is found, set the flag to True
-            if cell_value is not None and 'Box:' in str(cell_value):
+            if 'Box:' in str(cell_value):
                 found_box = True
                 box_num += 1  # if box is found, increment box num.
 
@@ -46,34 +46,34 @@ def sort_excel_data(input_file, output_file):
             else:
                 print(" Box number not found. Unable to parse file.")
 
-    # Now discard info between box and lever
-    # Left (active) lever must be present first in this logic
+    # Iterate through each cell in the sheet
     for row in sheet.iter_rows(values_only=True):
         for cell_value in row:
-            if cell_value is not None and 'L:' in str(cell_value):
-                found_left_lever = True
-                # If left lever has been found, append the value to the new sheet
-                # we want to stop appending when we run into the 'R:' cell.
-                while (isinstance(cell_value, (int, float))):
-                    if found_left_lever:
-                        # first discard all timestamps
+            if cell_value is not None:
+                # Check for left lever
+                if 'L:' in str(cell_value):
+                    found_left_lever = True
+                    # Stop appending when 'R:' is encountered
+                    while not ('R:' in str(cell_value)):
+                        # Discard timestamps
                         if ':' not in str(cell_value):
                             new_sheet.append([cell_value])
-            else:
-                print(
-                    " Left Lever press delimiter [ L: ] not found! Unable to parse file. ")
+                        # Update cell_value for the next iteration
+                        cell_value = next(row, None)
+                    break  # Exit the loop after finding 'R:'
 
-    # Right (inactive) lever next
-    for row in sheet.iter_rows(values_only=True):
-        for cell_value in row:
-            if cell_value is not None and 'R:' in str(cell_value):
-                found_right_lever = True
-                # If right lever has been found, append the value to the new sheet
-                if found_right_lever:
+                # Check for right lever
+                elif 'R:' in str(cell_value):
+                    found_right_lever = True
+                    # Append the value to the new sheet
                     if ':' not in str(cell_value):
                         new_sheet.append([cell_value])
-            else:
-                print(" Right Lever press delimiter [ R: ] not found! Unable to parse file. ")
+
+    # Print messages outside the loop based on the results
+    if not found_left_lever:
+        print("Left Lever press delimiter [ L: ] not found! Unable to parse file.")
+    if not found_right_lever:
+        print("Right Lever press delimiter [ R: ] not found! Unable to parse file.")
 
     # Save the new workbook to the output file
     new_workbook.save(output_file)
