@@ -1,6 +1,6 @@
 ## README: Rat Data Converter 
 
-Voluntary exercise: raw data to csv string converter for Dr. Brown's Neuroscience lab at WSU. Comissioned by Damien Lybrand.
+Voluntary exercise: raw data to csv string converter for Dr. Brown's Neuroscience lab at WSU. Comissioned by Damien Lybrand. 
 
 
 ---
@@ -53,4 +53,4 @@ If you have python installed, use  `pip install openpyxl pandas`  before running
   
 Initial prototype: Discard uneccessary data, identify box number and sort lever press data into 3-by-n arrays. The first array column will be the raw data, the second column is the running total, and the third is the running total divided by 60.  
 
-Current limitations: only expecting one box. 
+Current limitations: Only expecting one box, will return a file of in-order lever press data without the "running total" and "total / 60" columns. Irrelevant data is still deleted. 
