@@ -11,16 +11,15 @@ import openpyxl
 import pandas as pd
 
 
-def sort_excel_data(input_file, output_file, start_delimiter = 'L:', end_delimiter = 'R:'):
+def sort_excel_data(input_file, output_file):
     # Load the Excel file
-    workbook = openpyxl.load_workbook(input_file)
-
-    # Assume the first sheet in the workbook
+    workbook = openpyxl.load_workbook(input_file)# Assume the first sheet in the workbook
     sheet = workbook.active
-
-    found_box = False
-    found_right_lever = False
+    
+    found_box = False  # for debugging
+    found_right_lever = False # for debugging
     found_left_lever = False
+    start_extracting = False
     # box numbering starts at one, so setting this to zero serves as an error flag.
     box_num = 0
 
@@ -32,57 +31,50 @@ def sort_excel_data(input_file, output_file, start_delimiter = 'L:', end_delimit
     new_workbook = openpyxl.Workbook()
     new_sheet = new_workbook.active
 
+    left_lever_data = []
+    right_lever_data = []
     # Iterate through each cell in the original sheet: First idenfity 'box' delimiter
     for row in sheet.iter_rows(values_only=True):
+        
         for cell_value in row:
-            # If 'box' is found, set the flag to True
-            if 'Box 1:' in str(cell_value):
+            if 'Box:' in str(cell_value):
                 found_box = True
                 box_num += 1  # if box is found, increment box num.
-                
-                if found_box:
-                 new_sheet.append([cell_value]) # append value of box num to the new sheet
-                 # will only append once
-                else:  # elif not found_box? 
-                 print(" Box number not found - please wait for file parsing.")
-
-    # TODO: discard all data between box value and L: delimiter. 
-            if 'L:' in str(cell_value):
-                new_sheet.append([cell_value])
-                found_left_lever = True
-                if ':' not in str(cell_value) and type(cell_value) != int: #int not in str(cell_value):
-                   # new_sheet.append([cell_value]) # append values that aren't timestamps.
-                   sorted_column.append(cell.value)
- 
-                        
-            if 'R:' in str(cell_value):
-                    new_sheet.append([cell_value])
+                new_sheet.append([cell_value]) # append value of box num to the new sheet
+                new_sheet.append([box_num]) # incremented to keep track
+            if found_box:
+                if 'L:' in str(cell_value):
+                    found_left_lever = True
+                    new_sheet.append([cell_value]) 
+                    start_extracting = True
+                    continue                         
+                if 'R:' in str(cell_value):
+                    #new_sheet.append([cell_value])
                     found_right_lever = True
-                    if ':' not in str(cell_value) and type(cell_value) != int: #and int not in str(cell_value):
-                       # new_sheet.append([cell_value]) # append values that aren't timestamps. 
-                        sorted_column.append(cell.value)
-
-    # next sort all numerical data into columns. 
-    sorted_column = []
-
-    for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=sheet.max_column):
-        for cell in row:
-
-            # Check if the cell contains a numeric value
-            if isinstance(cell.value, (int, float)):
-                sorted_column.append(cell.value)
-
-    # Sort the numeric values
-    sorted_column = sorted(sorted_column)
+                    start_extracting = False
+                    
+                if start_extracting and isinstance(cell_value, (int, float)) and ':' not in str(cell_value):
+                        left_lever_data.append(cell_value)
+                        # TODO: make strings of lever data for Damien to copy-paste from one cell. 
+                if found_right_lever and isinstance(cell_value, (int, float)) and ':' not in str(cell_value):
+                        right_lever_data.append(cell_value)
+                        
+                        
+    for value in left_lever_data: 
+        new_sheet.append([value]) 
+        
+    new_sheet.append(["R:"])
     
+    for value in right_lever_data:
+        new_sheet.append([value])
+        
+        
+                        
     # TODO: make second column: running total
     
     # TODO: make third column: running total / 60 
     
 
-    # Write the sorted numeric values to the new sheet
-    for value in sorted_column:
-        new_sheet.append([value])
     
     
 
@@ -104,8 +96,6 @@ if __name__ == "__main__":
     print(" RatSort will require an input file path and return the path of the updated file.")
 
     input_file_path = input("paste or type input file path here: ")
-
-    # if
 
     # input_file_path = "input_data.xlsx"
     output_file_path = "sorted_data.xlsx"
