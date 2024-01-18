@@ -49,13 +49,13 @@ def sort_excel_data(input_file, output_file):
                     start_extracting = True
                     continue                         
                 if 'R:' in str(cell_value):
-                    #new_sheet.append([cell_value])
+                    #new_sheet.append([cell_value]) 
                     found_right_lever = True
                     start_extracting = False
                     
                 if start_extracting and isinstance(cell_value, (int, float)) and ':' not in str(cell_value):
                         left_lever_data.append(cell_value)
-                        # TODO: make strings of lever data for Damien to copy-paste from one cell. 
+                        
                 if found_right_lever and isinstance(cell_value, (int, float)) and ':' not in str(cell_value):
                         right_lever_data.append(cell_value)
                         
@@ -67,6 +67,15 @@ def sort_excel_data(input_file, output_file):
     
     for value in right_lever_data:
         new_sheet.append([value])
+        
+    # Insert single-cell data lists for each lever so Damien can copy-paste into Matlab
+    new_sheet.append(["L:"])
+    left_lever_cell = ', '.join(map(str, left_lever_data))
+    new_sheet.append([left_lever_cell])
+    
+    new_sheet.append(["R:"])
+    right_lever_cell = ', '.join(map(str, right_lever_data))
+    new_sheet.append([right_lever_cell])
         
         
                         
