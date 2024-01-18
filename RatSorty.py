@@ -11,7 +11,7 @@ import openpyxl
 import pandas as pd
 
 
-def sort_excel_data(input_file, output_file):
+def sort_excel_data(input_file, output_file, start_delimiter = 'L:', end_delimiter = 'R:'):
     # Load the Excel file
     workbook = openpyxl.load_workbook(input_file)
 
@@ -36,42 +36,57 @@ def sort_excel_data(input_file, output_file):
     for row in sheet.iter_rows(values_only=True):
         for cell_value in row:
             # If 'box' is found, set the flag to True
-            if 'Box:' in str(cell_value):
+            if 'Box 1:' in str(cell_value):
                 found_box = True
                 box_num += 1  # if box is found, increment box num.
-                break
+                
+                if found_box:
+                 new_sheet.append([cell_value]) # append value of box num to the new sheet
+                 # will only append once
+                else:  # elif not found_box? 
+                 print(" Box number not found - please wait for file parsing.")
 
-            # If 'box' has been found, append the value to the new sheet
-            if found_box:
+    # TODO: discard all data between box value and L: delimiter. 
+            if 'L:' in str(cell_value):
                 new_sheet.append([cell_value])
-    if not found_box:
-                print(" Box number not found. Unable to parse file.")
-
-    # Iterate through each cell in the sheet
-    for row in sheet.iter_rows(values_only=True):
-        row_iter = iter(row)
-        for cell_value in row_iter:
-            if cell_value is not None:
-                # Check for left lever
-                if 'L:' in str(cell_value):
-                    found_left_lever = True
-                    # Stop appending when 'R:' is encountered
-                    while not ('R:' in str(cell_value)):
-                        # Discard timestamps
-                        if ':' not in str(cell_value):
-                            new_sheet.append([cell_value])
-                        # Update cell_value for the next iteration
-                        cell_value = next(row_iter, None)
-                    break  # Exit the loop after finding 'R:'
-
-                # Check for right lever
-                elif 'R:' in str(cell_value):
+                found_left_lever = True
+                if ':' not in str(cell_value) and type(cell_value) != int: #int not in str(cell_value):
+                   # new_sheet.append([cell_value]) # append values that aren't timestamps.
+                   sorted_column.append(cell.value)
+ 
+                        
+            if 'R:' in str(cell_value):
+                    new_sheet.append([cell_value])
                     found_right_lever = True
-                    # Append the value to the new sheet
-                    if ':' not in str(cell_value):
-                        new_sheet.append([cell_value])
+                    if ':' not in str(cell_value) and type(cell_value) != int: #and int not in str(cell_value):
+                       # new_sheet.append([cell_value]) # append values that aren't timestamps. 
+                        sorted_column.append(cell.value)
 
-    # Print messages outside the loop based on the results
+    # next sort all numerical data into columns. 
+    sorted_column = []
+
+    for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row, min_col=1, max_col=sheet.max_column):
+        for cell in row:
+
+            # Check if the cell contains a numeric value
+            if isinstance(cell.value, (int, float)):
+                sorted_column.append(cell.value)
+
+    # Sort the numeric values
+    sorted_column = sorted(sorted_column)
+    
+    # TODO: make second column: running total
+    
+    # TODO: make third column: running total / 60 
+    
+
+    # Write the sorted numeric values to the new sheet
+    for value in sorted_column:
+        new_sheet.append([value])
+    
+    
+
+    #    Print messages outside the loop based on the results
     if not found_left_lever:
         print(
             "Left Lever press delimiter [ L: ] not found! Unable to parse file.")
