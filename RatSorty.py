@@ -6,10 +6,8 @@ rat data converter for the Neuro Lab at WSU (commissioned by Damien Lybrand)
 - future tasks: input checking, error handling for incomplete files, sort several rats' data for multiple days. 
 
 '''
-
 import openpyxl
 import pandas as pd
-
 
 def sort_excel_data(input_file, output_file):
     # Load the Excel file
@@ -18,21 +16,18 @@ def sort_excel_data(input_file, output_file):
     
     found_box = False  # for debugging
     found_right_lever = False # for debugging
-    found_left_lever = False
     start_extracting = False
-    # box numbering starts at one, so setting this to zero serves as an error flag.
-    box_num = 0
-
-    ''' discard all data before the box number is encountered. 
-    Then discard all data between box and first lever press delimiter.
-    Keep all data attached to lever press delimiters.  '''
+    box_num = 0 # in raw data, boxes start at 1 so this doubles as an error flag. 
 
     # Create a new workbook and sheet
     new_workbook = openpyxl.Workbook()
     new_sheet = new_workbook.active
 
     left_lever_data = []
+    left_totals = []
     right_lever_data = []
+    right_totals = []
+    
     # Iterate through each cell in the original sheet: First idenfity 'box' delimiter
     for row in sheet.iter_rows(values_only=True):
         
@@ -44,8 +39,7 @@ def sort_excel_data(input_file, output_file):
                 new_sheet.append([box_num]) # incremented to keep track
             if found_box:
                 if 'L:' in str(cell_value):
-                    found_left_lever = True
-                    new_sheet.append([cell_value]) 
+                   # new_sheet.append([cell_value]) 
                     start_extracting = True
                     continue                         
                 if 'R:' in str(cell_value):
@@ -55,45 +49,62 @@ def sort_excel_data(input_file, output_file):
                     
                 if start_extracting and isinstance(cell_value, (int, float)) and ':' not in str(cell_value):
                         left_lever_data.append(cell_value)
-                        
+                                     
                 if found_right_lever and isinstance(cell_value, (int, float)) and ':' not in str(cell_value):
                         right_lever_data.append(cell_value)
                         
-                        
-    for value in left_lever_data: 
-        new_sheet.append([value]) 
+    # for value in left_lever_data: 
+    #     new_sheet.append([value]) 
         
-    new_sheet.append(["R:"])
-    
+    # new_sheet.append(["R:"])
+    # for value in right_lever_data:
+    #     new_sheet.append([value])
+        
+    # Create Second Column: Running Totals
+    running_total = 0
+    for value in left_lever_data:
+        running_total += value
+        left_totals.append(running_total)
+        
+    running_total = 0 # re-assign
     for value in right_lever_data:
-        new_sheet.append([value])
+        running_total += value 
+        right_totals.append(running_total)
+
+    # Append the 'L:' column and 'Running Total' column to the new sheet
+    new_sheet.append(["L:"] + ["Running Total"])
+    for value, total in zip(left_lever_data, left_totals):
+        new_sheet.append([value, total])
         
-    # Insert single-cell data lists for each lever so Damien can copy-paste into Matlab
-    new_sheet.append(["L:"])
-    left_lever_cell = ', '.join(map(str, left_lever_data))
-    new_sheet.append([left_lever_cell])
-    
-    new_sheet.append(["R:"])
-    right_lever_cell = ', '.join(map(str, right_lever_data))
-    new_sheet.append([right_lever_cell])
-        
-        
-                        
-    # TODO: make second column: running total
+    new_sheet.append(["R:"] + ["Running Total"])
+    for value, total in zip(right_lever_data, right_totals):
+        new_sheet.append([value, total])
+
+    # Create Third Column: Running Total / 60
+    running_total_divided = [value / 60 for value in left_totals]
     
     # TODO: make third column: running total / 60 
     
-
     
+    # ~~~  Insert single-cell data lists for each lever so Damien can copy-paste into Matlab ~~~ 
+    new_sheet.append(["L ~ Raw"])
+    left_lever_cell = ', '.join(map(str, left_lever_data))
+    new_sheet.append([left_lever_cell])
     
+    new_sheet.append(["R ~ Raw"])
+    right_lever_cell = ', '.join(map(str, right_lever_data))
+    new_sheet.append([right_lever_cell])
+    
+    # single-cell lists of respective running totals 
+    new_sheet.append(["L ~ Running Totals"])
+    left_totals_cell = ', '.join(map(str, left_totals))
+    new_sheet.append([left_totals_cell])
+    
+    new_sheet.append(["R ~ Running Totals"])
+    right_totals_cell = ', '.join(map(str, right_totals))
+    new_sheet.append([right_totals_cell])
 
-    #    Print messages outside the loop based on the results
-    if not found_left_lever:
-        print(
-            "Left Lever press delimiter [ L: ] not found! Unable to parse file.")
-    if not found_right_lever:
-        print(
-            "Right Lever press delimiter [ R: ] not found! Unable to parse file.")
+
 
     # Save the new workbook to the output file
     new_workbook.save(output_file)
