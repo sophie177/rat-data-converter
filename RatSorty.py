@@ -25,8 +25,10 @@ def sort_excel_data(input_file, output_file):
 
     left_lever_data = []
     left_totals = []
+    left_minutes = []
     right_lever_data = []
     right_totals = []
+    right_minutes = []
     
     # Iterate through each cell in the original sheet: First idenfity 'box' delimiter
     for row in sheet.iter_rows(values_only=True):
@@ -70,21 +72,28 @@ def sort_excel_data(input_file, output_file):
     for value in right_lever_data:
         running_total += value 
         right_totals.append(running_total)
+    
+    #running_total_divided = [value / 60 for value in left_totals] # adjust to three decimal places! 
+    running_total_divided = [round(value / 60, 3) for value in left_totals]
+
 
     # Append the 'L:' column and 'Running Total' column to the new sheet
-    new_sheet.append(["L:"] + ["Running Total"])
-    for value, total in zip(left_lever_data, left_totals):
-        new_sheet.append([value, total])
+    new_sheet.append(["L:"] + ["L Totals"] + [" L Minutes"]) # column headers
+    for value, total, total_divided in zip(left_lever_data, left_totals, running_total_divided):
+        new_sheet.append([value, total, total_divided]) # was [ value, total, total_divided]
         
-    new_sheet.append(["R:"] + ["Running Total"])
-    for value, total in zip(right_lever_data, right_totals):
-        new_sheet.append([value, total])
+    new_sheet.append(["R:"] + ["R Totals"] + ["R Minutes"])
+    for value, total, total_divided in zip(right_lever_data, right_totals, running_total_divided):
+        new_sheet.append([value, total, total_divided])
 
-    # Create Third Column: Running Total / 60
-    running_total_divided = [value / 60 for value in left_totals]
-    
-    # TODO: make third column: running total / 60 
-    
+    running_mins = 0
+    for value in left_totals:
+        running_mins = round(running_mins + value/60, 3)  # Calculate and round to three decimal places
+        left_minutes.append(running_mins)
+    running_mins = 0 # reassign
+    for value in right_totals:
+        running_mins = round(running_mins + value/60, 3)  
+        right_minutes.append(running_mins) 
     
     # ~~~  Insert single-cell data lists for each lever so Damien can copy-paste into Matlab ~~~ 
     new_sheet.append(["L ~ Raw"])
@@ -103,6 +112,16 @@ def sort_excel_data(input_file, output_file):
     new_sheet.append(["R ~ Running Totals"])
     right_totals_cell = ', '.join(map(str, right_totals))
     new_sheet.append([right_totals_cell])
+    
+    # single-sheet lists of respective running totals / 60
+    new_sheet.append(["L ~ Minutes"])
+    left_minutes_cell = ', '.join(map(str, left_minutes))
+    new_sheet.append([left_minutes_cell])
+    
+    new_sheet.append(["R ~ Minutes"])
+    right_minutes_cell = ', '.join(map(str, right_minutes))
+    new_sheet.append([right_minutes_cell])
+    
 
 
 
