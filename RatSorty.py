@@ -25,10 +25,8 @@ def sort_excel_data(input_file, output_file):
 
     left_lever_data = []
     left_totals = []
-    left_minutes = []
     right_lever_data = []
     right_totals = []
-    right_minutes = []
     
     # Iterate through each cell in the original sheet: First idenfity 'box' delimiter
     for row in sheet.iter_rows(values_only=True):
@@ -55,13 +53,6 @@ def sort_excel_data(input_file, output_file):
                 if found_right_lever and isinstance(cell_value, (int, float)) and ':' not in str(cell_value):
                         right_lever_data.append(cell_value)
                         
-    # for value in left_lever_data: 
-    #     new_sheet.append([value]) 
-        
-    # new_sheet.append(["R:"])
-    # for value in right_lever_data:
-    #     new_sheet.append([value])
-        
     # Create Second Column: Running Totals
     running_total = 0
     for value in left_lever_data:
@@ -82,18 +73,12 @@ def sort_excel_data(input_file, output_file):
     for value, total, total_divided in zip(left_lever_data, left_totals, running_total_divided):
         new_sheet.append([value, total, total_divided]) # was [ value, total, total_divided]
         
+    running_total_divided = [round(value / 60, 3) for value in right_totals]
+
     new_sheet.append(["R:"] + ["R Totals"] + ["R Minutes"])
     for value, total, total_divided in zip(right_lever_data, right_totals, running_total_divided):
         new_sheet.append([value, total, total_divided])
 
-    running_mins = 0
-    for value in left_totals:
-        running_mins = round(running_mins + value/60, 3)  # Calculate and round to three decimal places
-        left_minutes.append(running_mins)
-    running_mins = 0 # reassign
-    for value in right_totals:
-        running_mins = round(running_mins + value/60, 3)  
-        right_minutes.append(running_mins) 
     
     # ~~~  Insert single-cell data lists for each lever so Damien can copy-paste into Matlab ~~~ 
     new_sheet.append(["L ~ Raw"])
@@ -113,15 +98,18 @@ def sort_excel_data(input_file, output_file):
     right_totals_cell = ', '.join(map(str, right_totals))
     new_sheet.append([right_totals_cell])
     
+    leftmin_list = [round(value / 60, 3) for value in left_totals]
+
     # single-sheet lists of respective running totals / 60
     new_sheet.append(["L ~ Minutes"])
-    left_minutes_cell = ', '.join(map(str, left_minutes))
-    new_sheet.append([left_minutes_cell])
-    
+    left_minutes_cell = ', '.join(str(value) for value in leftmin_list)
+    new_sheet.append([left_minutes_cell])  # Append the comma-separated string as a single cell
+
+    rightmin_list= [round(value / 60, 3) for value in right_totals]
+
     new_sheet.append(["R ~ Minutes"])
-    right_minutes_cell = ', '.join(map(str, right_minutes))
-    new_sheet.append([right_minutes_cell])
-    
+    right_minutes_cell = ', '.join(str(value) for value in rightmin_list)
+    new_sheet.append([right_minutes_cell])  # Append the comma-separated string as a single cell
 
 
 
