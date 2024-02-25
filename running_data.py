@@ -57,27 +57,39 @@ def sort_excel_data(input_file, output_file):
     running_total = 0
     for value in left_lever_data:
         running_total += value
-        left_totals.append(running_total)
+        left_totals.append(round(running_total/1, 2)) #        left_totals.append(running_total)
+
         
     running_total = 0 # re-assign
     for value in right_lever_data:
         running_total += value 
-        right_totals.append(running_total)
+        right_totals.append(round(running_total/1, 2))
     
     #running_total_divided = [value / 60 for value in left_totals] # adjust to three decimal places! 
-    running_total_divided = [round(value / 60, 3) for value in left_totals]
-
-
+    running_total_divided1 = [round(value / 100, 2) for value in left_totals]
     # Append the 'L:' column and 'Running Total' column to the new sheet
-    new_sheet.append(["C:"] + ["C Totals"] + [" C Minutes"]) # column headers
-    for value, total, total_divided in zip(left_lever_data, left_totals, running_total_divided):
+    new_sheet.append(["C:"] + ["C Totals"] + [" C seconds"]) # column headers
+    for value, total, total_divided in zip(left_lever_data, left_totals, running_total_divided1):
         new_sheet.append([value, total, total_divided]) # was [ value, total, total_divided]
         
-    running_total_divided = [round(value / 60, 3) for value in right_totals]
+    running_total_divided2 = [round(value / 100, 2) for value in right_totals]
 
-    new_sheet.append(["D:"] + ["D Totals"] + ["D Minutes"])
-    for value, total, total_divided in zip(right_lever_data, right_totals, running_total_divided):
+    new_sheet.append(["D:"] + ["D Totals"] + ["D seconds"])
+    for value, total, total_divided in zip(right_lever_data, right_totals, running_total_divided2):
         new_sheet.append([value, total, total_divided])
+        
+    running_total_60 = [round(value / 60, 2) for value in running_total_divided1]
+    new_sheet.append(["C:"] + ["C Totals"] + ["C Minutes"])
+
+    for value, total, total_divided in zip(left_totals, running_total_divided1, running_total_60 ):
+        new_sheet.append([value, total, total_divided]) 
+        
+    running_total_60_2 = [round(value/60, 2)for value in running_total_divided2]
+    new_sheet.append(["D:"] + ["D Totals"] + ["D Minutes"])
+
+    for value, total, total_divided in zip(right_totals, running_total_divided2, running_total_60_2):
+        new_sheet.append([value, total, total_divided])
+    
 
     
     # ~~~  Insert single-cell data lists for each lever so Damien can copy-paste into Matlab ~~~ 

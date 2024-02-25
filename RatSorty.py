@@ -57,12 +57,13 @@ def sort_excel_data(input_file, output_file):
     running_total = 0
     for value in left_lever_data:
         running_total += value
-        left_totals.append(running_total)
+        left_totals.append(round(running_total/1, 2)) #        left_totals.append(running_total)
+
         
     running_total = 0 # re-assign
     for value in right_lever_data:
         running_total += value 
-        right_totals.append(running_total)
+        right_totals.append(round(running_total/1, 2))
     
     #running_total_divided = [value / 60 for value in left_totals] # adjust to three decimal places! 
     running_total_divided = [round(value / 60, 3) for value in left_totals]
