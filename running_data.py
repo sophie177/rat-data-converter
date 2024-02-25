@@ -38,11 +38,11 @@ def sort_excel_data(input_file, output_file):
                 new_sheet.append([cell_value]) # append value of box num to the new sheet
                 new_sheet.append([box_num]) # incremented to keep track
             if found_box:
-                if 'L:' in str(cell_value):
+                if 'C:' in str(cell_value):
                    # new_sheet.append([cell_value]) 
                     start_extracting = True
                     continue                         
-                if 'R:' in str(cell_value):
+                if 'D:' in str(cell_value):
                     #new_sheet.append([cell_value]) 
                     found_right_lever = True
                     start_extracting = False
@@ -69,45 +69,45 @@ def sort_excel_data(input_file, output_file):
 
 
     # Append the 'L:' column and 'Running Total' column to the new sheet
-    new_sheet.append(["L:"] + ["L Totals"] + [" L Minutes"]) # column headers
+    new_sheet.append(["C:"] + ["C Totals"] + [" C Minutes"]) # column headers
     for value, total, total_divided in zip(left_lever_data, left_totals, running_total_divided):
         new_sheet.append([value, total, total_divided]) # was [ value, total, total_divided]
         
     running_total_divided = [round(value / 60, 3) for value in right_totals]
 
-    new_sheet.append(["R:"] + ["R Totals"] + ["R Minutes"])
+    new_sheet.append(["D:"] + ["D Totals"] + ["D Minutes"])
     for value, total, total_divided in zip(right_lever_data, right_totals, running_total_divided):
         new_sheet.append([value, total, total_divided])
 
     
     # ~~~  Insert single-cell data lists for each lever so Damien can copy-paste into Matlab ~~~ 
-    new_sheet.append(["L ~ Raw"])
+    new_sheet.append(["C ~ Raw"])
     left_lever_cell = ', '.join(map(str, left_lever_data))
     new_sheet.append([left_lever_cell])
     
-    new_sheet.append(["R ~ Raw"])
+    new_sheet.append(["D ~ Raw"])
     right_lever_cell = ', '.join(map(str, right_lever_data))
     new_sheet.append([right_lever_cell])
     
     # single-cell lists of respective running totals 
-    new_sheet.append(["L ~ Running Totals"])
+    new_sheet.append(["C ~ Running Totals"])
     left_totals_cell = ', '.join(map(str, left_totals))
     new_sheet.append([left_totals_cell])
     
-    new_sheet.append(["R ~ Running Totals"])
+    new_sheet.append(["D ~ Running Totals"])
     right_totals_cell = ', '.join(map(str, right_totals))
     new_sheet.append([right_totals_cell])
     
     leftmin_list = [round(value / 60, 3) for value in left_totals]
 
     # single-sheet lists of respective running totals / 60
-    new_sheet.append(["L ~ Minutes"])
+    new_sheet.append(["C ~ Minutes"])
     left_minutes_cell = ', '.join(str(value) for value in leftmin_list)
     new_sheet.append([left_minutes_cell])  # Append the comma-separated string as a single cell
 
     rightmin_list= [round(value / 60, 3) for value in right_totals]
 
-    new_sheet.append(["R ~ Minutes"])
+    new_sheet.append(["D ~ Minutes"])
     right_minutes_cell = ', '.join(str(value) for value in rightmin_list)
     new_sheet.append([right_minutes_cell])  # Append the comma-separated string as a single cell
 
